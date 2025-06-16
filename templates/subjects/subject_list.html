@@ -31,10 +31,10 @@
                         {% endif %}
 
                         <div class="flex justify-between mt-4">
-                            <a href="{% url 'subject_detail' subject.pk %}" class="text-primary-600 hover:text-primary-800 transition">View Details</a>
+                            <a href="{% url 'subject_detail' subject.pk %}" class="text-primary-600 transition">View Details</a>
                             <div class="space-x-2">
-                                <a href="{% url 'subject_update' subject.pk %}" class="text-secondary-600 hover:text-secondary-800 transition">Edit</a>
-                                <a href="{% url 'subject_delete' subject.pk %}" class="text-red-600 hover:text-red-800 transition">Delete</a>
+                                <a href="{% url 'subject_update' subject.pk %}" class="text-secondary-600 transition">Edit</a>
+                                <a href="{% url 'subject_delete' subject.pk %}" class="text-red-600 transition">Delete</a>
                             </div>
                         </div>
                     </div>

@@ -54,7 +54,7 @@
 
             <div class="flex justify-between pt-4">
                 <a href="{% if form.instance.pk %}{% url 'subject_detail' form.instance.pk %}{% else %}{% url 'subject_list' %}{% endif %}" 
-                   class="text-primary-600 hover:text-primary-800 transition">
+                   class="text-primary-600 transition">
                     Cancel
                 </a>
                 <button type="submit" class="px-4 py-2 glass-button">

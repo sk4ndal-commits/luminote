@@ -57,10 +57,6 @@
             transition: all 0.3s ease;
         }
 
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
-        }
 
         .glass-header {
             background: rgba(37, 99, 235, 0.8);
@@ -84,9 +80,6 @@
             transition: all 0.3s ease;
         }
 
-        .glass-button:hover {
-            color: rgba(29, 78, 216, 1);
-        }
     </style>
 </head>
 <body>
@@ -98,17 +91,17 @@
                 <nav>
                     <ul class="flex space-x-4">
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'home' %}" class="hover:text-primary-200 transition">Home</a></li>
-                            <li><a href="{% url 'subject_list' %}" class="hover:text-primary-200 transition">Subjects</a></li>
+                            <li><a href="{% url 'home' %}" class="transition">Home</a></li>
+                            <li><a href="{% url 'subject_list' %}" class="transition">Subjects</a></li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}" class="inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="hover:text-primary-200 bg-transparent border-none p-0 m-0 cursor-pointer transition">Logout</button>
+                                    <button type="submit" class="bg-transparent border-none p-0 m-0 cursor-pointer transition">Logout</button>
                                 </form>
                             </li>
                         {% else %}
-                            <li><a href="{% url 'login' %}" class="hover:text-primary-200 transition">Login</a></li>
-                            <li><a href="{% url 'register' %}" class="hover:text-primary-200 transition">Register</a></li>
+                            <li><a href="{% url 'login' %}" class="transition">Login</a></li>
+                            <li><a href="{% url 'register' %}" class="transition">Register</a></li>
                         {% endif %}
                     </ul>
                 </nav>
