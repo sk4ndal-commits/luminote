@@ -22,6 +22,7 @@ from accounts.views import HomeView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
+    path('subjects/', include('subjects.urls')),
     path('login/', RedirectView.as_view(url='/accounts/login/', permanent=True), name='login_redirect'),
     path('', HomeView.as_view(), name='home'),
 ]

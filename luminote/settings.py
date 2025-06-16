@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # Custom apps
     'accounts',
+    'subjects',
 ]
 
 # Custom user model

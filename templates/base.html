@@ -76,17 +76,16 @@
             border-top: 1px solid rgba(255, 255, 255, 0.18);
         }
 
+        /* Minimalistic button styling */
         .glass-button {
-            background: rgba(37, 99, 235, 0.8);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            border: none;
+            color: rgba(37, 99, 235, 1);
             transition: all 0.3s ease;
         }
 
         .glass-button:hover {
-            background: rgba(29, 78, 216, 0.9);
-            transform: translateY(-2px);
+            color: rgba(29, 78, 216, 1);
         }
     </style>
 </head>
@@ -100,6 +99,7 @@
                     <ul class="flex space-x-4">
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'home' %}" class="hover:text-primary-200 transition">Home</a></li>
+                            <li><a href="{% url 'subject_list' %}" class="hover:text-primary-200 transition">Subjects</a></li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}" class="inline">
                                     {% csrf_token %}
