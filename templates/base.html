@@ -12,16 +12,16 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
                         },
                         secondary: {
                             50: '#f5f3ff',
@@ -44,28 +44,71 @@
         body {
             background-color: #f8fafc;
             color: #334155;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+        }
+
+        .glass-header {
+            background: rgba(37, 99, 235, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .glass-footer {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .glass-button {
+            background: rgba(37, 99, 235, 0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .glass-button:hover {
+            background: rgba(29, 78, 216, 0.9);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
     <div class="min-h-screen flex flex-col">
         <!-- Header -->
-        <header class="bg-primary-600 text-white shadow-md">
+        <header class="glass-header text-white">
             <div class="container mx-auto px-4 py-4 flex justify-between items-center">
                 <a href="{% url 'home' %}" class="text-2xl font-bold">LumiNote</a>
                 <nav>
                     <ul class="flex space-x-4">
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'home' %}" class="hover:text-primary-200">Home</a></li>
+                            <li><a href="{% url 'home' %}" class="hover:text-primary-200 transition">Home</a></li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}" class="inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="hover:text-primary-200 bg-transparent border-none p-0 m-0 cursor-pointer">Logout</button>
+                                    <button type="submit" class="hover:text-primary-200 bg-transparent border-none p-0 m-0 cursor-pointer transition">Logout</button>
                                 </form>
                             </li>
                         {% else %}
-                            <li><a href="{% url 'login' %}" class="hover:text-primary-200">Login</a></li>
-                            <li><a href="{% url 'register' %}" class="hover:text-primary-200">Register</a></li>
+                            <li><a href="{% url 'login' %}" class="hover:text-primary-200 transition">Login</a></li>
+                            <li><a href="{% url 'register' %}" class="hover:text-primary-200 transition">Register</a></li>
                         {% endif %}
                     </ul>
                 </nav>
@@ -78,8 +121,8 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-gray-100 border-t border-gray-200">
-            <div class="container mx-auto px-4 py-6 text-center text-gray-500">
+        <footer class="glass-footer">
+            <div class="container mx-auto px-4 py-6 text-center text-gray-600">
                 <p>&copy; {% now "Y" %} LumiNote. All rights reserved.</p>
             </div>
         </footer>
