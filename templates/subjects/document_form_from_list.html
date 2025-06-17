@@ -6,7 +6,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const subjectSelect = document.getElementById('subject');
-        const topicSelect = document.getElementById('id_topic');
+        // Use a more robust selector to find the topic select element
+        const topicSelect = document.querySelector('select[name="topic"]');
 
         // Function to update topics based on selected subject
         function updateTopics() {
@@ -21,7 +22,12 @@
 
                 // Fetch topics for the selected subject
                 fetch(`/subjects/api/subjects/${subjectId}/topics/`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(topics => {
                         // Enable topic select
                         topicSelect.disabled = false;
@@ -39,10 +45,24 @@
                             option.textContent = topic.name;
                             topicSelect.appendChild(option);
                         });
+
+                        // If there are no topics, show a message
+                        if (topics.length === 0) {
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No topics available for this subject';
+                            topicSelect.appendChild(option);
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching topics:', error);
                         topicSelect.disabled = false;
+
+                        // Show error message in topic select
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Error loading topics';
+                        topicSelect.appendChild(option);
                     });
             } else {
                 // If no subject selected, disable topic select
@@ -59,8 +79,10 @@
         // Update topics when subject changes
         subjectSelect.addEventListener('change', updateTopics);
 
-        // Initial update
-        updateTopics();
+        // Initial update if a subject is already selected
+        if (subjectSelect.value) {
+            updateTopics();
+        }
     });
 </script>
 {% endblock %}
