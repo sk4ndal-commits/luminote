@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Document - LumiNote{% endblock %}
+
+{% block content %}
+<div class="glass-card overflow-hidden">
+    <div class="px-6 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Upload Document</h1>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="glass-card p-4 bg-red-100">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="space-y-4">
+                <div>
+                    <label for="subject" class="block text-sm font-medium text-gray-700">
+                        Subject
+                    </label>
+                    <div class="mt-1">
+                        <select name="subject" id="subject" class="w-full rounded-md border-gray-300" required>
+                            <option value="">Select a subject</option>
+                            {% for subject in subjects %}
+                                <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if form.subject.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.subject.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Document Title
+                    </label>
+                    <div class="mt-1">
+                        {{ form.title }}
+                    </div>
+                    {% if form.title.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.title.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.document_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Document Type
+                    </label>
+                    <div class="mt-1">
+                        {{ form.document_type }}
+                    </div>
+                    {% if form.document_type.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.document_type.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        File (PDF or DOCX only)
+                    </label>
+                    <div class="mt-1">
+                        {{ form.file }}
+                    </div>
+                    {% if form.file.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.file.errors }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-500 mt-1">
+                        Allowed file types: PDF, DOCX
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <a href="{% url 'document_list' %}" class="text-primary-600 transition">
+                    &larr; Back to Documents
+                </a>
+                <button type="submit" class="px-4 py-2 glass-button">
+                    Upload Document
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

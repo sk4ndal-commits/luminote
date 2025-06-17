@@ -248,3 +248,58 @@ class DocumentListView(LoginRequiredMixin, ListView):
         context['current_search'] = self.request.GET.get('q', '')
 
         return context
+
+
+class DocumentUploadFromListView(LoginRequiredMixin, CreateView):
+    """
+    View for uploading documents from the document list view.
+    """
+    model = Document
+    template_name = 'subjects/document_form_from_list.html'
+    form_class = DocumentForm
+    success_url = reverse_lazy('document_list')
+
+    def get_form_class(self):
+        """
+        Return the form class to use.
+        """
+        return DocumentForm
+
+    def get_form_kwargs(self):
+        """
+        Pass the subject to the form if specified in the query parameters.
+        """
+        kwargs = super().get_form_kwargs()
+        subject_id = self.request.GET.get('subject')
+        if subject_id and subject_id.isdigit():
+            subject = get_object_or_404(Subject, pk=subject_id, user=self.request.user)
+            kwargs['subject'] = subject
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """
+        Add subjects to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['subjects'] = Subject.objects.filter(user=self.request.user)
+        subject_id = self.request.GET.get('subject')
+        if subject_id and subject_id.isdigit():
+            context['selected_subject'] = get_object_or_404(Subject, pk=subject_id, user=self.request.user)
+        return context
+
+    def form_valid(self, form):
+        """
+        Set the subject and display a success message.
+        """
+        # If subject is not set in the form, get it from the POST data
+        if not hasattr(form.instance, 'subject') or not form.instance.subject:
+            subject_id = self.request.POST.get('subject')
+            if subject_id and subject_id.isdigit():
+                subject = get_object_or_404(Subject, pk=subject_id, user=self.request.user)
+                form.instance.subject = subject
+            else:
+                form.add_error('subject', _('Please select a subject.'))
+                return self.form_invalid(form)
+
+        messages.success(self.request, _('Document uploaded successfully.'))
+        return super().form_valid(form)
