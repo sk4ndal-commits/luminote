@@ -3,105 +3,97 @@
 {% block title %}Home - LumiNote{% endblock %}
 
 {% block content %}
-<div class="glass-card overflow-hidden">
-    <div class="px-6 py-8">
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to LumiNote, {{ user.first_name|default:user.email }}!</h1>
-            <p class="text-gray-600 mb-8">Your AI-powered self-study platform</p>
-        </div>
-
-        <!-- Dashboard Summary Section -->
-        <div class="glass-card p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-primary-800 mb-4">Quick Status</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Active Subject -->
-                <div>
-                    <h3 class="text-lg font-medium text-gray-700 mb-2">Active Subject</h3>
-                    {% if active_subject %}
-                        <p class="text-gray-800">
-                            <span class="font-semibold">{{ active_subject.name }}</span>
-                            {% if active_topic %}
-                                – {{ active_topic.name }}
-                            {% endif %}
-                        </p>
-                    {% else %}
-                        <p class="text-gray-500 italic">No active subject</p>
-                    {% endif %}
-                </div>
-
-                <!-- Last Action -->
-                <div>
-                    <h3 class="text-lg font-medium text-gray-700 mb-2">Last Activity</h3>
-                    {% if last_document %}
-                        <p class="text-gray-800">
-                            {% if days_since_last_activity == 0 %}
-                                You studied today:
-                            {% elif days_since_last_activity == 1 %}
-                                You last studied yesterday:
-                            {% else %}
-                                You last studied {{ days_since_last_activity }} days ago:
-                            {% endif %}
-                            <span class="font-semibold">{{ last_document.title }}</span>
-                            ({{ last_document.subject.name }})
-                        </p>
-                    {% else %}
-                        <p class="text-gray-500 italic">No recent activity</p>
-                    {% endif %}
-                </div>
+    <div class="glass-card overflow-hidden">
+        <div class="px-6 py-8">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to LumiNote, {{ user.first_name|default:user.email }}!</h1>
+                <p class="text-gray-600 mb-8">Your AI-powered self-study platform</p>
             </div>
 
-            <!-- Progress Overview -->
-            {% if active_subject %}
-            <div class="mt-6">
-                <h3 class="text-lg font-medium text-gray-700 mb-2">Progress Overview</h3>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
-                    <div class="bg-primary-600 h-4 rounded-full" style="width: {{ progress_percentage }}%"></div>
-                </div>
-                <p class="text-gray-800">{{ progress_percentage }}% complete</p>
+            <!-- Dashboard Summary Section -->
+            <div class="glass-card p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-primary-800 mb-4">Quick Status</h2>
 
-                {% if weak_topics.exists %}
-                <div class="mt-3">
-                    <p class="text-gray-700">Areas to focus on:</p>
-                    <ul class="list-disc list-inside text-gray-800">
-                        {% for topic in weak_topics|slice:":3" %}
-                            <li>{{ topic.name }}</li>
-                        {% endfor %}
-                        {% if weak_topics.count > 3 %}
-                            <li class="text-gray-500">and {{ weak_topics.count|add:"-3" }} more...</li>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Active Subject -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Active Subject</h3>
+                        {% if active_subject %}
+                            <p class="text-gray-800">
+                                <span class="font-semibold">{{ active_subject.name }}</span>
+                                {% if active_topic %}
+                                    – {{ active_topic.name }}
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <p class="text-gray-500 italic">No active subject</p>
                         {% endif %}
-                    </ul>
+                    </div>
+
+                    <!-- Last Action -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Last Activity</h3>
+                        {% if last_document %}
+                            <p class="text-gray-800">
+                                {% if days_since_last_activity == 0 %}
+                                    You studied today:
+                                {% elif days_since_last_activity == 1 %}
+                                    You last studied yesterday:
+                                {% else %}
+                                    You last studied {{ days_since_last_activity }} days ago:
+                                {% endif %}
+                                <span class="font-semibold">{{ last_document.title }}</span>
+                                ({{ last_document.subject.name }})
+                            </p>
+                        {% else %}
+                            <p class="text-gray-500 italic">No recent activity</p>
+                        {% endif %}
+                    </div>
                 </div>
+
+                <!-- Progress Overview -->
+                {% if active_subject %}
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Progress Overview</h3>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                            <div class="bg-primary-600 h-4 rounded-full" style="width: {{ progress_percentage }}%"></div>
+                        </div>
+                        <p class="text-gray-800">{{ progress_percentage }}% complete</p>
+
+                        {% if weak_topics.exists %}
+                            <div class="mt-3">
+                                <p class="text-gray-700">Areas to focus on:</p>
+                                <ul class="list-disc list-inside text-gray-800">
+                                    {% for topic in weak_topics|slice:":3" %}
+                                        <li>{{ topic.name }}</li>
+                                    {% endfor %}
+                                    {% if weak_topics.count > 3 %}
+                                        <li class="text-gray-500">and {{ weak_topics.count|add:"-3" }} more...</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
-            {% endif %}
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            <div class="glass-card p-6">
-                <h3 class="text-xl font-semibold text-primary-800 mb-3">Manage Subjects</h3>
-                <p class="text-gray-600">Create and organize subjects for your courses like Economics, Biology, etc.</p>
-                <a href="{% url 'subject_list' %}" class="mt-4 px-4 py-2 glass-button inline-block">
-                    View Subjects
-                </a>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-semibold text-primary-800 mb-3">Manage Subjects</h3>
+                    <p class="text-gray-600">Create and organize subjects for your courses like Economics, Biology, etc.</p>
+                    <a href="{% url 'subject_list' %}" class="mt-4 px-4 py-2 glass-button inline-block">
+                        View Subjects
+                    </a>
+                </div>
 
-            <div class="glass-card p-6">
-                <h3 class="text-xl font-semibold text-secondary-800 mb-3">Upload Study Materials</h3>
-                <p class="text-gray-600">Upload your PDFs by subject to start creating personalized study materials.</p>
-                <button class="mt-4 px-4 py-2 glass-button text-secondary-600 hover:text-secondary-800">
-                    Coming Soon
-                </button>
-            </div>
-
-            <div class="glass-card p-6">
-                <h3 class="text-xl font-semibold text-amber-800 mb-3">Take AI Quizzes</h3>
-                <p class="text-gray-600">Generate and take AI-created quizzes based on your study materials.</p>
-                <button class="mt-4 px-4 py-2 glass-button text-amber-600 hover:text-amber-800">
-                    Coming Soon
-                </button>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-semibold text-amber-800 mb-3">Take AI Quizzes</h3>
+                    <p class="text-gray-600">Generate and take AI-created quizzes based on your study materials.</p>
+                    <button class="mt-4 px-4 py-2 glass-button text-amber-600 hover:text-amber-800">
+                        Coming Soon
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
