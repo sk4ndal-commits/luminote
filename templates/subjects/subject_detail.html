@@ -93,6 +93,7 @@
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
                                     <p class="text-sm text-gray-500">
+                                        {{ document.get_document_type_display }} •
                                         {{ document.file_type|upper }} •
                                         {{ document.file_size|filesizeformat }}
                                         {% if document.page_count %} • {{ document.page_count }} pages{% endif %}

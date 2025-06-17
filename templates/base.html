@@ -93,6 +93,7 @@
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'home' %}" class="transition">Home</a></li>
                             <li><a href="{% url 'subject_list' %}" class="transition">Subjects</a></li>
+                            <li><a href="{% url 'document_list' %}" class="transition">Documents</a></li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}" class="inline">
                                     {% csrf_token %}

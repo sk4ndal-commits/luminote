@@ -41,6 +41,11 @@ class Document(models.Model):
     """
     Document model for storing uploaded files with metadata.
     """
+    DOCUMENT_TYPES = (
+        ('study_material', _('Study Material')),
+        ('exam', _('Exam')),
+    )
+
     subject = models.ForeignKey(
         Subject,
         on_delete=models.CASCADE,
@@ -48,6 +53,12 @@ class Document(models.Model):
         verbose_name=_('subject')
     )
     title = models.CharField(_('title'), max_length=255)
+    document_type = models.CharField(
+        _('document type'),
+        max_length=20,
+        choices=DOCUMENT_TYPES,
+        default='study_material'
+    )
     file = models.FileField(
         _('file'),
         upload_to=document_file_path,

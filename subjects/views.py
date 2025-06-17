@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect
+from django.db.models import Q
 
 from .models import Subject, Document
 from .forms import SubjectForm, DocumentForm
@@ -199,3 +200,51 @@ class DocumentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         messages.success(request, _('Document deleted successfully.'))
         return super().delete(request, *args, **kwargs)
+
+
+class DocumentListView(LoginRequiredMixin, ListView):
+    """
+    View for displaying a list of documents belonging to the current user.
+    """
+    model = Document
+    template_name = 'subjects/document_list.html'
+    context_object_name = 'documents'
+
+    def get_queryset(self):
+        """
+        Return only documents belonging to the current user.
+        Filter by document type if specified in the query parameters.
+        """
+        queryset = Document.objects.filter(subject__user=self.request.user).order_by('-uploaded_at')
+
+        # Filter by document type if specified
+        document_type = self.request.GET.get('type')
+        if document_type in dict(Document.DOCUMENT_TYPES):
+            queryset = queryset.filter(document_type=document_type)
+
+        # Filter by subject if specified
+        subject_id = self.request.GET.get('subject')
+        if subject_id and subject_id.isdigit():
+            queryset = queryset.filter(subject_id=subject_id)
+
+        # Search by title if specified
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(title__icontains=search_query)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Add subjects and filters to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['subjects'] = Subject.objects.filter(user=self.request.user)
+        context['document_types'] = Document.DOCUMENT_TYPES
+
+        # Add current filters to context
+        context['current_type'] = self.request.GET.get('type', '')
+        context['current_subject'] = self.request.GET.get('subject', '')
+        context['current_search'] = self.request.GET.get('q', '')
+
+        return context

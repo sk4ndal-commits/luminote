@@ -37,9 +37,10 @@ class DocumentForm(forms.ModelForm):
     """
     class Meta:
         model = Document
-        fields = ['title', 'file']
+        fields = ['title', 'document_type', 'file']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Enter document title')}),
+            'document_type': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):

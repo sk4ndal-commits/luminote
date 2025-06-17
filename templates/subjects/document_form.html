@@ -15,13 +15,13 @@
 
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
-            
+
             {% if form.non_field_errors %}
                 <div class="glass-card p-4 bg-red-100">
                     {{ form.non_field_errors }}
                 </div>
             {% endif %}
-            
+
             <div class="space-y-4">
                 <div>
                     <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">
@@ -34,7 +34,19 @@
                         <p class="text-red-600 text-sm mt-1">{{ form.title.errors }}</p>
                     {% endif %}
                 </div>
-                
+
+                <div>
+                    <label for="{{ form.document_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Document Type
+                    </label>
+                    <div class="mt-1">
+                        {{ form.document_type }}
+                    </div>
+                    {% if form.document_type.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.document_type.errors }}</p>
+                    {% endif %}
+                </div>
+
                 <div>
                     <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700">
                         File (PDF or DOCX only)
@@ -50,7 +62,7 @@
                     </p>
                 </div>
             </div>
-            
+
             <div class="flex justify-between">
                 <a href="{% url 'subject_detail' subject.pk %}" class="text-primary-600 transition">
                     &larr; Back to Subject

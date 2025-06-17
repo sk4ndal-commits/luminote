@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:pk>/delete/', views.SubjectDeleteView.as_view(), name='subject_delete'),
 
     # Document URLs
+    path('documents/', views.DocumentListView.as_view(), name='document_list'),
     path('<int:subject_pk>/documents/upload/', views.DocumentUploadView.as_view(), name='document_upload'),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name='document_delete'),
 ]
