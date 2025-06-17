@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Q
 
 from .models import Subject, Topic, Document
@@ -168,8 +168,26 @@ class DocumentUploadView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Display a success message.
+        Set the subject and topic, then display a success message.
         """
+        # Set the subject
+        form.instance.subject = self.subject
+
+        # If topic is not set in the form, get it from the form data
+        if not hasattr(form.instance, 'topic') or not form.instance.topic:
+            topic_id = form.cleaned_data.get('topic')
+            if topic_id:
+                # Verify that the topic belongs to the selected subject
+                topic = get_object_or_404(
+                    Topic, 
+                    pk=topic_id, 
+                    subject=self.subject
+                )
+                form.instance.topic = topic
+            else:
+                form.add_error('topic', _('Please select a topic.'))
+                return self.form_invalid(form)
+
         messages.success(self.request, _('Document uploaded successfully.'))
         return super().form_valid(form)
 
@@ -427,7 +445,7 @@ class DocumentUploadFromListView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Set the subject and display a success message.
+        Set the subject and topic, then display a success message.
         """
         # If subject is not set in the form, get it from the POST data
         if not hasattr(form.instance, 'subject') or not form.instance.subject:
@@ -437,6 +455,21 @@ class DocumentUploadFromListView(LoginRequiredMixin, CreateView):
                 form.instance.subject = subject
             else:
                 form.add_error('subject', _('Please select a subject.'))
+                return self.form_invalid(form)
+
+        # If topic is not set in the form, get it from the form data
+        if not hasattr(form.instance, 'topic') or not form.instance.topic:
+            topic_id = form.cleaned_data.get('topic')
+            if topic_id:
+                # Verify that the topic belongs to the selected subject
+                topic = get_object_or_404(
+                    Topic, 
+                    pk=topic_id, 
+                    subject=form.instance.subject
+                )
+                form.instance.topic = topic
+            else:
+                form.add_error('topic', _('Please select a topic.'))
                 return self.form_invalid(form)
 
         messages.success(self.request, _('Document uploaded successfully.'))
@@ -494,6 +527,11 @@ class DocumentUploadForTopicView(LoginRequiredMixin, UserPassesTestMixin, Create
         """
         kwargs = super().get_form_kwargs()
         kwargs['subject'] = self.topic.subject
+
+        # Pre-select the topic in the form
+        if 'data' not in kwargs:
+            kwargs['initial'] = {'topic': self.topic.pk}
+
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -519,3 +557,18 @@ class DocumentUploadForTopicView(LoginRequiredMixin, UserPassesTestMixin, Create
         form.instance.subject = self.topic.subject
         messages.success(self.request, _('Document uploaded successfully.'))
         return super().form_valid(form)
+
+
+@login_required
+def get_topics_for_subject(request, subject_id):
+    """
+    API endpoint to get topics for a subject.
+    Returns a JSON list of topics.
+    """
+    subject = get_object_or_404(Subject, pk=subject_id, user=request.user)
+    topics = Topic.objects.filter(subject=subject).order_by('name')
+
+    # Convert topics to a list of dictionaries
+    topics_data = [{'id': topic.id, 'name': topic.name} for topic in topics]
+
+    return JsonResponse(topics_data, safe=False)

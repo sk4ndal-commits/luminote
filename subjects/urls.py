@@ -20,4 +20,7 @@ urlpatterns = [
     path('<int:subject_pk>/documents/upload/', views.DocumentUploadView.as_view(), name='document_upload'),
     path('documents/upload/', views.DocumentUploadFromListView.as_view(), name='document_upload_from_list'),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name='document_delete'),
+
+    # API URLs
+    path('api/subjects/<int:subject_id>/topics/', views.get_topics_for_subject, name='api_get_topics'),
 ]

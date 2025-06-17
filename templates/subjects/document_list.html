@@ -76,6 +76,9 @@
                                     Subject: <a href="{% url 'subject_detail' document.subject.pk %}" class="text-primary-600 hover:text-primary-800">{{ document.subject.name }}</a>
                                 </p>
                                 <p class="text-xs text-gray-400">
+                                    Topic: <a href="{% url 'topic_detail' document.topic.pk %}" class="text-primary-600 hover:text-primary-800">{{ document.topic.name }}</a>
+                                </p>
+                                <p class="text-xs text-gray-400">
                                     Uploaded {{ document.uploaded_at|date:"F j, Y, g:i a" }}
                                 </p>
                             </div>

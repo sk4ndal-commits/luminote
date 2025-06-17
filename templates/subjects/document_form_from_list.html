@@ -2,6 +2,69 @@
 
 {% block title %}Upload Document - LumiNote{% endblock %}
 
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectSelect = document.getElementById('subject');
+        const topicSelect = document.getElementById('id_topic');
+
+        // Function to update topics based on selected subject
+        function updateTopics() {
+            const subjectId = subjectSelect.value;
+
+            // Clear current options
+            topicSelect.innerHTML = '';
+
+            if (subjectId) {
+                // Disable topic select while loading
+                topicSelect.disabled = true;
+
+                // Fetch topics for the selected subject
+                fetch(`/subjects/api/subjects/${subjectId}/topics/`)
+                    .then(response => response.json())
+                    .then(topics => {
+                        // Enable topic select
+                        topicSelect.disabled = false;
+
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'Select a topic';
+                        topicSelect.appendChild(defaultOption);
+
+                        // Add topic options
+                        topics.forEach(topic => {
+                            const option = document.createElement('option');
+                            option.value = topic.id;
+                            option.textContent = topic.name;
+                            topicSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching topics:', error);
+                        topicSelect.disabled = false;
+                    });
+            } else {
+                // If no subject selected, disable topic select
+                topicSelect.disabled = true;
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select a subject first';
+                topicSelect.appendChild(defaultOption);
+            }
+        }
+
+        // Update topics when subject changes
+        subjectSelect.addEventListener('change', updateTopics);
+
+        // Initial update
+        updateTopics();
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="glass-card overflow-hidden">
     <div class="px-6 py-8">
@@ -57,6 +120,18 @@
                     </div>
                     {% if form.document_type.errors %}
                         <p class="text-red-600 text-sm mt-1">{{ form.document_type.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.topic.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Topic
+                    </label>
+                    <div class="mt-1">
+                        {{ form.topic }}
+                    </div>
+                    {% if form.topic.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.topic.errors }}</p>
                     {% endif %}
                 </div>
 
