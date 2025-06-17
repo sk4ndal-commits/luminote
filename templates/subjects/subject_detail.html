@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="mb-8">
+    <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-700 mb-2">Description</h2>
             <div class="glass-card p-4">
                 <p class="text-gray-600 whitespace-pre-line">{{ subject.description|default:"No description provided." }}</p>
@@ -46,11 +46,42 @@
             </div>
         </div>
 
+        <!-- Overall Progress Section -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Overall Progress</h2>
+            <div class="glass-card p-4">
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                    <div class="bg-primary-600 h-4 rounded-full" style="width: 65%"></div>
+                </div>
+                <p class="text-gray-600">65% covered</p>
+                <p class="text-xs text-gray-400 mt-1">(Placeholder - Will be implemented later)</p>
+            </div>
+        </div>
+
+        <!-- Weak Topics Section -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Topics You're Weak In</h2>
+            <div class="glass-card p-4">
+                <ul class="list-disc list-inside text-gray-600">
+                    <li>Topic 1</li>
+                    <li>Topic 2</li>
+                    <li>Topic 3</li>
+                </ul>
+                <p class="text-xs text-gray-400 mt-2">(Placeholder - Will be implemented later)</p>
+                <div class="mt-4">
+                    <button class="px-4 py-2 glass-button bg-primary-50 text-primary-700">
+                        Generate Quiz on Weak Topics
+                    </button>
+                </div>
+            </div>
+        </div>
+
+     <!-- Documents Section -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-700">Documents</h2>
+                <h2 class="text-xl font-semibold text-gray-700">Lecture Notes & Example Exams</h2>
                 <a href="{% url 'document_upload' subject.pk %}" class="px-4 py-2 glass-button">
-                    Upload Document
+                    Upload New File
                 </a>
             </div>
 
@@ -62,7 +93,7 @@
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
                                     <p class="text-sm text-gray-500">
-                                        {{ document.file_type|upper }} • 
+                                        {{ document.file_type|upper }} •
                                         {{ document.file_size|filesizeformat }}
                                         {% if document.page_count %} • {{ document.page_count }} pages{% endif %}
                                     </p>
