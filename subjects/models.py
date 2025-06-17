@@ -59,8 +59,7 @@ def document_file_path(instance, filename):
     Generate file path for new document.
     Format: documents/user_id/subject_id/topic_id/filename
     """
-    topic_part = f"{instance.topic.id}/" if instance.topic else ""
-    return f'documents/{instance.subject.user.id}/{instance.subject.id}/{topic_part}{filename}'
+    return f'documents/{instance.subject.user.id}/{instance.subject.id}/{instance.topic.id}/{filename}'
 
 
 class Document(models.Model):
@@ -80,11 +79,9 @@ class Document(models.Model):
     )
     topic = models.ForeignKey(
         Topic,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='documents',
-        verbose_name=_('topic'),
-        null=True,
-        blank=True
+        verbose_name=_('topic')
     )
     title = models.CharField(_('title'), max_length=255)
     document_type = models.CharField(

@@ -10,8 +10,10 @@ urlpatterns = [
 
     # Topic URLs
     path('<int:subject_pk>/topics/create/', views.TopicCreateView.as_view(), name='topic_create'),
+    path('topics/<int:pk>/', views.TopicDetailView.as_view(), name='topic_detail'),
     path('topics/<int:pk>/update/', views.TopicUpdateView.as_view(), name='topic_update'),
     path('topics/<int:pk>/delete/', views.TopicDeleteView.as_view(), name='topic_delete'),
+    path('topics/<int:topic_pk>/documents/upload/', views.DocumentUploadForTopicView.as_view(), name='topic_document_upload'),
 
     # Document URLs
     path('documents/', views.DocumentListView.as_view(), name='document_list'),

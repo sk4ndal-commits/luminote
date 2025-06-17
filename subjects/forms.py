@@ -75,10 +75,11 @@ class DocumentForm(forms.ModelForm):
         # Filter topics by subject if subject is provided
         if self.subject:
             self.fields['topic'].queryset = Topic.objects.filter(subject=self.subject)
-            self.fields['topic'].empty_label = _('No topic (general material)')
         else:
             self.fields['topic'].queryset = Topic.objects.none()
-            self.fields['topic'].required = False
+
+        # Topic is always required
+        self.fields['topic'].required = True
 
     def clean_file(self):
         """

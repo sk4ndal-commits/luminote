@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ topic.name }} - {{ topic.subject.name }} - LumiNote{% endblock %}
+
+{% block content %}
+<div class="glass-card overflow-hidden">
+    <div class="px-6 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">{{ topic.name }}</h1>
+            <div class="space-x-2">
+                <a href="{% url 'topic_update' topic.pk %}" class="px-4 py-2 glass-button">
+                    Edit
+                </a>
+                <a href="{% url 'topic_delete' topic.pk %}" class="px-4 py-2 glass-button text-red-600">
+                    Delete
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Description</h2>
+            <div class="glass-card p-4">
+                <p class="text-gray-600 whitespace-pre-line">{{ topic.description|default:"No description provided." }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div class="glass-card p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-2">Created</h2>
+                <p class="text-gray-600">{{ topic.created_at|date:"F j, Y, g:i a" }}</p>
+            </div>
+            <div class="glass-card p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-2">Last Updated</h2>
+                <p class="text-gray-600">{{ topic.updated_at|date:"F j, Y, g:i a" }}</p>
+            </div>
+        </div>
+
+        <!-- Quizzes Section (Placeholder) -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Quizzes</h2>
+            <div class="glass-card p-4 text-center">
+                <p class="text-gray-500">No quizzes available yet.</p>
+                <p class="text-xs text-gray-400 mt-2">(Placeholder - Will be implemented later)</p>
+            </div>
+        </div>
+
+        <!-- Documents Section -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">Documents</h2>
+                <a href="{% url 'topic_document_upload' topic.pk %}" class="px-4 py-2 glass-button">
+                    Upload New File
+                </a>
+            </div>
+
+            {% if documents %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for document in documents %}
+                        <div class="glass-card p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
+                                    <p class="text-sm text-gray-500">
+                                        {{ document.get_document_type_display }} •
+                                        {{ document.file_type|upper }} •
+                                        {{ document.file_size|filesizeformat }}
+                                        {% if document.page_count %} • {{ document.page_count }} pages{% endif %}
+                                    </p>
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        Uploaded {{ document.uploaded_at|date:"F j, Y, g:i a" }}
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ document.file.url }}" class="text-primary-600 hover:text-primary-800" target="_blank">
+                                        View
+                                    </a>
+                                    <a href="{% url 'document_delete' document.pk %}" class="text-red-600 hover:text-red-800">
+                                        Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="glass-card p-4 text-center">
+                    <p class="text-gray-500">No documents uploaded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-between">
+            <a href="{% url 'subject_detail' topic.subject.pk %}" class="text-primary-600 transition">
+                &larr; Back to {{ topic.subject.name }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

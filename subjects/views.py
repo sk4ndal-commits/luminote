@@ -42,22 +42,10 @@ class SubjectDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         """
-        Add documents and topics to context.
+        Add topics to context.
         """
         context = super().get_context_data(**kwargs)
         context['topics'] = self.object.topics.all().order_by('name')
-
-        # Get documents without a topic
-        context['general_documents'] = self.object.documents.filter(topic__isnull=True).order_by('-uploaded_at')
-
-        # Get documents organized by topic
-        topic_documents = {}
-        for topic in context['topics']:
-            topic_documents[topic.id] = topic.documents.all().order_by('-uploaded_at')
-        context['topic_documents'] = topic_documents
-
-        # Keep the original documents list for backward compatibility
-        context['documents'] = self.object.documents.all().order_by('-uploaded_at')
         return context
 
 class SubjectCreateView(LoginRequiredMixin, CreateView):
@@ -451,5 +439,83 @@ class DocumentUploadFromListView(LoginRequiredMixin, CreateView):
                 form.add_error('subject', _('Please select a subject.'))
                 return self.form_invalid(form)
 
+        messages.success(self.request, _('Document uploaded successfully.'))
+        return super().form_valid(form)
+
+
+class TopicDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """
+    View for displaying details of a specific topic.
+    """
+    model = Topic
+    template_name = 'subjects/topic_detail.html'
+    context_object_name = 'topic'
+
+    def test_func(self):
+        """
+        Ensure the topic belongs to the current user.
+        """
+        topic = self.get_object()
+        return topic.subject.user == self.request.user
+
+    def get_context_data(self, **kwargs):
+        """
+        Add documents to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['documents'] = self.object.documents.all().order_by('-uploaded_at')
+        return context
+
+
+class DocumentUploadForTopicView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    View for uploading documents to a topic.
+    """
+    model = Document
+    form_class = DocumentForm
+    template_name = 'subjects/document_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        """
+        Set up the view with the topic.
+        """
+        super().setup(request, *args, **kwargs)
+        self.topic = get_object_or_404(Topic, pk=kwargs.get('topic_pk'))
+
+    def test_func(self):
+        """
+        Ensure the topic belongs to the current user.
+        """
+        return self.topic.subject.user == self.request.user
+
+    def get_form_kwargs(self):
+        """
+        Pass the subject to the form.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['subject'] = self.topic.subject
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """
+        Add topic and subject to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['topic'] = self.topic
+        context['subject'] = self.topic.subject
+        return context
+
+    def get_success_url(self):
+        """
+        Return to the topic detail page.
+        """
+        return reverse('topic_detail', kwargs={'pk': self.topic.pk})
+
+    def form_valid(self, form):
+        """
+        Set the topic and subject, then display a success message.
+        """
+        form.instance.topic = self.topic
+        form.instance.subject = self.topic.subject
         messages.success(self.request, _('Document uploaded successfully.'))
         return super().form_valid(form)
