@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}{{ subject.name }} - LumiNote{% endblock %}
 
@@ -58,6 +59,48 @@
             </div>
         </div>
 
+        <!-- Topics Section -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">Topics</h2>
+                <a href="{% url 'topic_create' subject.pk %}" class="px-4 py-2 glass-button">
+                    Add New Topic
+                </a>
+            </div>
+
+            {% if topics %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for topic in topics %}
+                        <div class="glass-card p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700">{{ topic.name }}</h3>
+                                    {% if topic.description %}
+                                        <p class="text-sm text-gray-500 mt-1">{{ topic.description }}</p>
+                                    {% endif %}
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        {{ topic.documents.count }} document{{ topic.documents.count|pluralize }}
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'topic_update' topic.pk %}" class="text-primary-600 hover:text-primary-800">
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'topic_delete' topic.pk %}" class="text-red-600 hover:text-red-800">
+                                        Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="glass-card p-4 text-center">
+                    <p class="text-gray-500">No topics created yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
         <!-- Weak Topics Section -->
         <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-700 mb-2">Topics You're Weak In</h2>
@@ -86,34 +129,77 @@
             </div>
 
             {% if documents %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% for document in documents %}
-                        <div class="glass-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
-                                    <p class="text-sm text-gray-500">
-                                        {{ document.get_document_type_display }} •
-                                        {{ document.file_type|upper }} •
-                                        {{ document.file_size|filesizeformat }}
-                                        {% if document.page_count %} • {{ document.page_count }} pages{% endif %}
-                                    </p>
-                                    <p class="text-xs text-gray-400 mt-1">
-                                        Uploaded {{ document.uploaded_at|date:"F j, Y, g:i a" }}
-                                    </p>
+                <!-- General Documents (No Topic) -->
+                {% if general_documents %}
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">General Materials</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for document in general_documents %}
+                                <div class="glass-card p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
+                                            <p class="text-sm text-gray-500">
+                                                {{ document.get_document_type_display }} •
+                                                {{ document.file_type|upper }} •
+                                                {{ document.file_size|filesizeformat }}
+                                                {% if document.page_count %} • {{ document.page_count }} pages{% endif %}
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1">
+                                                Uploaded {{ document.uploaded_at|date:"F j, Y, g:i a" }}
+                                            </p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ document.file.url }}" class="text-primary-600 hover:text-primary-800" target="_blank">
+                                                View
+                                            </a>
+                                            <a href="{% url 'document_delete' document.pk %}" class="text-red-600 hover:text-red-800">
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex space-x-2">
-                                    <a href="{{ document.file.url }}" class="text-primary-600 hover:text-primary-800" target="_blank">
-                                        View
-                                    </a>
-                                    <a href="{% url 'document_delete' document.pk %}" class="text-red-600 hover:text-red-800">
-                                        Delete
-                                    </a>
-                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Documents by Topic -->
+                {% for topic in topics %}
+                    {% if topic_documents|get_item:topic.id %}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">{{ topic.name }}</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for document in topic_documents|get_item:topic.id %}
+                                    <div class="glass-card p-4">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h3 class="text-lg font-semibold text-gray-700">{{ document.title }}</h3>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ document.get_document_type_display }} •
+                                                    {{ document.file_type|upper }} •
+                                                    {{ document.file_size|filesizeformat }}
+                                                    {% if document.page_count %} • {{ document.page_count }} pages{% endif %}
+                                                </p>
+                                                <p class="text-xs text-gray-400 mt-1">
+                                                    Uploaded {{ document.uploaded_at|date:"F j, Y, g:i a" }}
+                                                </p>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <a href="{{ document.file.url }}" class="text-primary-600 hover:text-primary-800" target="_blank">
+                                                    View
+                                                </a>
+                                                <a href="{% url 'document_delete' document.pk %}" class="text-red-600 hover:text-red-800">
+                                                    Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                    {% endif %}
+                {% endfor %}
             {% else %}
                 <div class="glass-card p-4 text-center">
                     <p class="text-gray-500">No documents uploaded yet.</p>

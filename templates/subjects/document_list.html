@@ -27,10 +27,20 @@
                     </div>
                     <div>
                         <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                        <select name="subject" id="subject" class="w-full rounded-md border-gray-300">
+                        <select name="subject" id="subject" class="w-full rounded-md border-gray-300" onchange="this.form.submit()">
                             <option value="">All Subjects</option>
                             {% for subject in subjects %}
                                 <option value="{{ subject.id }}" {% if current_subject == subject.id|stringformat:"i" %}selected{% endif %}>{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="topic" class="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                        <select name="topic" id="topic" class="w-full rounded-md border-gray-300" {% if not current_subject %}disabled{% endif %}>
+                            <option value="">All Topics</option>
+                            <option value="none" {% if current_topic == 'none' %}selected{% endif %}>No Topic (General)</option>
+                            {% for topic in topics %}
+                                <option value="{{ topic.id }}" {% if current_topic == topic.id|stringformat:"i" %}selected{% endif %}>{{ topic.name }}</option>
                             {% endfor %}
                         </select>
                     </div>

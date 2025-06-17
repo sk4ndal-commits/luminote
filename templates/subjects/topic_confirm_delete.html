@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Topic - LumiNote{% endblock %}
+
+{% block content %}
+<div class="glass-card overflow-hidden">
+    <div class="px-6 py-8">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Delete Topic</h1>
+            <p class="text-gray-600 mt-2">
+                Are you sure you want to delete the topic "{{ topic.name }}"?
+            </p>
+        </div>
+
+        <div class="glass-card p-4 mb-6 bg-red-50">
+            <p class="text-red-600">
+                <strong>Warning:</strong> This will remove the topic from all associated documents. 
+                The documents themselves will not be deleted, but they will no longer be associated with this topic.
+            </p>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="flex justify-between">
+                <a href="{% url 'subject_detail' topic.subject.pk %}" class="text-primary-600 transition">
+                    &larr; Cancel and go back
+                </a>
+                <button type="submit" class="px-4 py-2 glass-button bg-red-50 text-red-600">
+                    Delete Topic
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

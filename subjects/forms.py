@@ -4,7 +4,7 @@ import PyPDF2
 import docx
 import io
 import os
-from .models import Subject, Document
+from .models import Subject, Topic, Document
 
 class SubjectForm(forms.ModelForm):
     """
@@ -31,21 +31,54 @@ class SubjectForm(forms.ModelForm):
         return instance
 
 
+class TopicForm(forms.ModelForm):
+    """
+    Form for creating and editing topics within a subject.
+    """
+    class Meta:
+        model = Topic
+        fields = ['name', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.subject = kwargs.pop('subject', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.subject and not instance.pk:  # Only set subject on new instances
+            instance.subject = self.subject
+        if commit:
+            instance.save()
+        return instance
+
+
 class DocumentForm(forms.ModelForm):
     """
     Form for uploading documents.
     """
     class Meta:
         model = Document
-        fields = ['title', 'document_type', 'file']
+        fields = ['title', 'document_type', 'topic', 'file']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': _('Enter document title')}),
             'document_type': forms.Select(attrs={'class': 'form-select'}),
+            'topic': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):
         self.subject = kwargs.pop('subject', None)
         super().__init__(*args, **kwargs)
+
+        # Filter topics by subject if subject is provided
+        if self.subject:
+            self.fields['topic'].queryset = Topic.objects.filter(subject=self.subject)
+            self.fields['topic'].empty_label = _('No topic (general material)')
+        else:
+            self.fields['topic'].queryset = Topic.objects.none()
+            self.fields['topic'].required = False
 
     def clean_file(self):
         """

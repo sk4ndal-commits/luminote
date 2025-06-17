@@ -29,12 +29,38 @@ class Subject(models.Model):
         return self.name
 
 
+class Topic(models.Model):
+    """
+    Topic model for organizing materials within a subject.
+    """
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='topics',
+        verbose_name=_('subject')
+    )
+    name = models.CharField(_('name'), max_length=100)
+    description = models.TextField(_('description'), blank=True)
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('topic')
+        verbose_name_plural = _('topics')
+        ordering = ['name']
+        unique_together = ['subject', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.subject.name})"
+
+
 def document_file_path(instance, filename):
     """
     Generate file path for new document.
-    Format: documents/user_id/subject_id/filename
+    Format: documents/user_id/subject_id/topic_id/filename
     """
-    return f'documents/{instance.subject.user.id}/{instance.subject.id}/{filename}'
+    topic_part = f"{instance.topic.id}/" if instance.topic else ""
+    return f'documents/{instance.subject.user.id}/{instance.subject.id}/{topic_part}{filename}'
 
 
 class Document(models.Model):
@@ -51,6 +77,14 @@ class Document(models.Model):
         on_delete=models.CASCADE,
         related_name='documents',
         verbose_name=_('subject')
+    )
+    topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
+        related_name='documents',
+        verbose_name=_('topic'),
+        null=True,
+        blank=True
     )
     title = models.CharField(_('title'), max_length=255)
     document_type = models.CharField(

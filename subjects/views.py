@@ -8,8 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 
-from .models import Subject, Document
-from .forms import SubjectForm, DocumentForm
+from .models import Subject, Topic, Document
+from .forms import SubjectForm, TopicForm, DocumentForm
 
 class SubjectListView(LoginRequiredMixin, ListView):
     """
@@ -42,9 +42,21 @@ class SubjectDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         """
-        Add documents to context.
+        Add documents and topics to context.
         """
         context = super().get_context_data(**kwargs)
+        context['topics'] = self.object.topics.all().order_by('name')
+
+        # Get documents without a topic
+        context['general_documents'] = self.object.documents.filter(topic__isnull=True).order_by('-uploaded_at')
+
+        # Get documents organized by topic
+        topic_documents = {}
+        for topic in context['topics']:
+            topic_documents[topic.id] = topic.documents.all().order_by('-uploaded_at')
+        context['topic_documents'] = topic_documents
+
+        # Keep the original documents list for backward compatibility
         context['documents'] = self.object.documents.all().order_by('-uploaded_at')
         return context
 
@@ -202,6 +214,125 @@ class DocumentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class TopicCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    View for creating a new topic within a subject.
+    """
+    model = Topic
+    form_class = TopicForm
+    template_name = 'subjects/topic_form.html'
+
+    def setup(self, request, *args, **kwargs):
+        """
+        Set up the view with the subject.
+        """
+        super().setup(request, *args, **kwargs)
+        self.subject = get_object_or_404(Subject, pk=self.kwargs['subject_pk'])
+
+    def test_func(self):
+        """
+        Ensure the subject belongs to the current user.
+        """
+        return self.subject.user == self.request.user
+
+    def get_form_kwargs(self):
+        """
+        Pass the subject to the form.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['subject'] = self.subject
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """
+        Add subject to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['subject'] = self.subject
+        return context
+
+    def get_success_url(self):
+        """
+        Redirect to the subject detail page after creation.
+        """
+        return reverse('subject_detail', kwargs={'pk': self.subject.pk})
+
+    def form_valid(self, form):
+        """
+        Add success message after creation.
+        """
+        messages.success(self.request, _('Topic created successfully.'))
+        return super().form_valid(form)
+
+
+class TopicUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating a topic.
+    """
+    model = Topic
+    form_class = TopicForm
+    template_name = 'subjects/topic_form.html'
+    context_object_name = 'topic'
+
+    def test_func(self):
+        """
+        Ensure the topic belongs to the current user.
+        """
+        topic = self.get_object()
+        return topic.subject.user == self.request.user
+
+    def get_context_data(self, **kwargs):
+        """
+        Add subject to context.
+        """
+        context = super().get_context_data(**kwargs)
+        context['subject'] = self.object.subject
+        return context
+
+    def get_success_url(self):
+        """
+        Redirect to the subject detail page after update.
+        """
+        return reverse('subject_detail', kwargs={'pk': self.object.subject.pk})
+
+    def form_valid(self, form):
+        """
+        Add success message after update.
+        """
+        messages.success(self.request, _('Topic updated successfully.'))
+        return super().form_valid(form)
+
+
+class TopicDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    View for deleting a topic.
+    """
+    model = Topic
+    template_name = 'subjects/topic_confirm_delete.html'
+    context_object_name = 'topic'
+
+    def test_func(self):
+        """
+        Ensure the topic belongs to the current user.
+        """
+        topic = self.get_object()
+        return topic.subject.user == self.request.user
+
+    def get_success_url(self):
+        """
+        Redirect to the subject detail page after deletion.
+        """
+        return reverse('subject_detail', kwargs={'pk': self.object.subject.pk})
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Add success message after deletion.
+        """
+        topic = self.get_object()
+        messages.success(request, _('Topic deleted successfully.'))
+        return super().delete(request, *args, **kwargs)
+
+
 class DocumentListView(LoginRequiredMixin, ListView):
     """
     View for displaying a list of documents belonging to the current user.
@@ -227,16 +358,26 @@ class DocumentListView(LoginRequiredMixin, ListView):
         if subject_id and subject_id.isdigit():
             queryset = queryset.filter(subject_id=subject_id)
 
+            # Filter by topic if specified
+            topic_id = self.request.GET.get('topic')
+            if topic_id == 'none':
+                queryset = queryset.filter(topic__isnull=True)
+            elif topic_id and topic_id.isdigit():
+                queryset = queryset.filter(topic_id=topic_id)
+
         # Search by title if specified
         search_query = self.request.GET.get('q')
         if search_query:
-            queryset = queryset.filter(title__icontains=search_query)
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(topic__name__icontains=search_query)
+            )
 
         return queryset
 
     def get_context_data(self, **kwargs):
         """
-        Add subjects and filters to context.
+        Add subjects, topics, and filters to context.
         """
         context = super().get_context_data(**kwargs)
         context['subjects'] = Subject.objects.filter(user=self.request.user)
@@ -245,7 +386,16 @@ class DocumentListView(LoginRequiredMixin, ListView):
         # Add current filters to context
         context['current_type'] = self.request.GET.get('type', '')
         context['current_subject'] = self.request.GET.get('subject', '')
+        context['current_topic'] = self.request.GET.get('topic', '')
         context['current_search'] = self.request.GET.get('q', '')
+
+        # Add topics for the selected subject
+        if context['current_subject'] and context['current_subject'].isdigit():
+            context['topics'] = Topic.objects.filter(
+                subject_id=context['current_subject']
+            ).order_by('name')
+        else:
+            context['topics'] = []
 
         return context
 

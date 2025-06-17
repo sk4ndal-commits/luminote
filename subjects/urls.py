@@ -8,6 +8,11 @@ urlpatterns = [
     path('<int:pk>/update/', views.SubjectUpdateView.as_view(), name='subject_update'),
     path('<int:pk>/delete/', views.SubjectDeleteView.as_view(), name='subject_delete'),
 
+    # Topic URLs
+    path('<int:subject_pk>/topics/create/', views.TopicCreateView.as_view(), name='topic_create'),
+    path('topics/<int:pk>/update/', views.TopicUpdateView.as_view(), name='topic_update'),
+    path('topics/<int:pk>/delete/', views.TopicDeleteView.as_view(), name='topic_delete'),
+
     # Document URLs
     path('documents/', views.DocumentListView.as_view(), name='document_list'),
     path('<int:subject_pk>/documents/upload/', views.DocumentUploadView.as_view(), name='document_upload'),
